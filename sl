@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# curses.h
+
+# TODO: trap SIGWINCH?
+read -r ROWS COLS <<EOF
+$(stty size)
+EOF
+
 # sl.h
 
 D51HEIGHT=10
@@ -181,38 +188,37 @@ option() {
 main() {
     # int x, i;
 
-    # for (i = 1; i < argc; ++i) {
-    #     if (*argv[i] == '-') {
-    #         option(argv[i] + 1);
-    #     }
-    # }
-    # initscr();
-    # signal(SIGINT, SIG_IGN);
-    # noecho();
-    # curs_set(0);
-    # nodelay(stdscr, TRUE);
-    # leaveok(stdscr, TRUE);
-    # scrollok(stdscr, FALSE);
+    tput init
+    tput civis
+    tput smcup
 
-    # for (x = COLS - 1; ; --x) {
-    #     if (LOGO == 1) {
-    #         if (add_sl(x) == ERR) break;
-    #     }
-    #     else if (C51 == 1) {
-    #         if (add_C51(x) == ERR) break;
-    #     }
-    #     else {
-    #         if (add_D51(x) == ERR) break;
-    #     }
-    #     getch();
-    #     refresh();
-    #     usleep(40000);
-    # }
-    # mvcur(0, COLS - 1, LINES - 1, 0);
-    # endwin();
+    # trap '' INT
 
-    # return 0;
-    :
+    stty -echo
+    stty -icanon min 0 time 0
+
+    x=$((COLS - 1))
+
+    while true; do
+        if [ -n "$LOGO" ]; then
+            add_sl "$x" || break
+        elif [ -n "$C51" ]; then
+            add_C51 "$x" || break
+        else
+            add_D51 "$x" || break
+        fi
+
+        getch
+        refresh
+        usleep 40000
+
+        x=$((x - 1))
+    done
+
+    tput cnorm
+    tput rmcup
+
+    return 0
 }
 
 add_sl() (
@@ -399,4 +405,4 @@ add_smoke() (
     :
 )
 
-main
+main "$@"
