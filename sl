@@ -150,8 +150,7 @@ LOGO=0
 FLY=0
 C51=0
 
-my_mvaddstr()
-(
+my_mvaddstr() (
     # int y, int x, char *str
 
     # for ( ; x < 0; ++x, ++str)
@@ -162,8 +161,7 @@ my_mvaddstr()
     :
 )
 
-option()
-{
+option() {
     # char *str
 
     # extern int ACCIDENT, LOGO, FLY, C51;
@@ -180,8 +178,7 @@ option()
     :
 }
 
-main()
-{
+main() {
     # int x, i;
 
     # for (i = 1; i < argc; ++i) {
@@ -218,9 +215,7 @@ main()
     :
 }
 
-
-add_sl()
-(
+add_sl() (
     # int x
 
     # static char *sl[LOGOPATTERNS][LOGOHEIGHT + 1]
@@ -262,9 +257,7 @@ add_sl()
     :
 )
 
-
-add_D51()
-(
+add_D51() (
     # int x
 
     # static char *d51[D51PATTERNS][D51HEIGHT + 1]
@@ -306,8 +299,7 @@ add_D51()
     :
 )
 
-add_C51()
-(
+add_C51() (
     # int x
 
     # static char *c51[C51PATTERNS][C51HEIGHT + 1]
@@ -349,9 +341,7 @@ add_C51()
     :
 )
 
-
-add_man()
-(
+add_man() (
     # int y, int x
 
     # static char *man[2][2] = {{"", "(O)"}, {"Help!", "\\O/"}};
@@ -365,8 +355,7 @@ add_man()
 
 SMOKEPTNS=16
 
-add_smoke()
-(
+add_smoke() (
     # int y, int x
 
     # static struct smokes {
