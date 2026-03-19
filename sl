@@ -3,7 +3,7 @@
 # curses.h
 
 # TODO: trap SIGWINCH?
-read -r ROWS COLS <<EOF
+read -r LINES COLS <<EOF
 $(stty size)
 EOF
 
@@ -178,10 +178,11 @@ C51WH14='\_/         \_/  \____/  \____/  \____/      \_/       '
 slice() (
     string="${1?}"
     start="${2:?}"
-    end="${2?}"
+    end="${3}"
 
-    # TODO: Remove.
-    [ "$end" -gt "${#string}" ] && printf '%s\n' "Index out of bounds: $*"
+    if [ -n "$end" ] && [ "$end" -le "$start" ]; then
+        return 0
+    fi
 
     printf '%s' "$string" | cut -c"$((start + 1))-$end"
 )
@@ -189,27 +190,44 @@ slice() (
 slice_with_length() (
     string="${1?}"
     start="${2:?}"
-    length="${2:?}"
+    length="${3:?}"
 
     slice "$string" "$start" $((start + length))
 )
 
 # sl.c
 
-ACCIDENT=0
-LOGO=0
-FLY=0
-C51=0
+ACCIDENT=
+LOGO=
+FLY=
+C51=
 
 my_mvaddstr() (
-    # int y, int x, char *str
+    y="${1:?}"
+    x="${2:?}"
+    str="${3?}"
 
-    # for ( ; x < 0; ++x, ++str)
-    #     if (*str == '\0')  return ERR;
-    # for ( ; *str != '\0'; ++str, ++x)
-    #     if (mvaddch(y, x, *str) == ERR)  return ERR;
-    # return OK;
-    :
+    length="${#str}"
+
+    if [ "$x" -ge "$COLS" ]; then
+        return 0
+    fi
+
+    max_length=$((COLS - x))
+
+    if [ $max_length -lt "$length" ]; then
+        str="$(slice_with_length "$str" 0 $max_length)"
+    fi
+
+    if [ "$x" -lt 0 ]; then
+        str="$(slice "$str" $((-x)))"
+        x=0
+    fi
+
+    tput cup "$y" "$x"
+    printf '%s' "$str"
+
+    return 0
 )
 
 option() {
@@ -230,8 +248,6 @@ option() {
 }
 
 main() {
-    # int x, i;
-
     tput init
     tput civis
     tput smcup
